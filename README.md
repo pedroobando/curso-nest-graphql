@@ -10,4 +10,4 @@ Estos ejemplos son del curso de Udemy de NESTJS + graphql [Fernando Herrera](htt
 
 - todo - una simple aplicacion
 - anylist - aplicacion mas compleja con autenticaciones y roles, listas maestro detallesm muy buena
-- twitter - una sencilla aplicacion de backend de twitter. (aplicacion propia)
+- twitter - una sencilla aplicacion de backend de twitter. branch (twitter)
