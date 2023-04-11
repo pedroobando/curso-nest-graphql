@@ -1,0 +1,59 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Todo {
+  """Numero identificador"""
+  id: Int!
+
+  """description works todo"""
+  description: String!
+
+  """work completed or finished"""
+  done: Boolean!
+}
+
+"""Todo quick aggregations"""
+type AggregationsType {
+  total: Int!
+  pending: Int!
+  completed: Int!
+  totalTodosCompleted: Int! @deprecated(reason: "Most use completed instead")
+}
+
+type Query {
+  """Hola mundo es lo que retorna"""
+  hello: String!
+  randomNumber(id: Int! = 8): Float!
+
+  """Retorna un numero random de 1 al max - (default 6)"""
+  randomZeroTo(max: Int! = 6): Int!
+  todos(status: Boolean): [Todo!]!
+  todo(
+    """valor id"""
+    id: Int!
+  ): Todo!
+  totalTodos: Int!
+  pendingTodos: Int!
+  completedTodos: Int!
+  aggregations: AggregationsType!
+}
+
+type Mutation {
+  createTodo(createTodoInput: CreateTodoInput!): Todo!
+  updateTodo(updateTodoInput: UpdateTodoInput!): Todo!
+  removeTodo(id: Int!): Boolean!
+}
+
+input CreateTodoInput {
+  """What needs to be done"""
+  description: String!
+}
+
+input UpdateTodoInput {
+  id: Int!
+
+  """What needs to be done"""
+  description: String
+  done: Boolean
+}
