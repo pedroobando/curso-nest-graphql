@@ -9,6 +9,7 @@ Curso de nestjs+graphql por fernando herrera - visto por devtalles
 ## Contenido
 
 01-foundations: Es un simple aplicacion de "Todo" elaborada bajo apirest
+
 02-todo: Es una aplicacion de "Todo", integrando graphql en nestjs
 
 ## License
