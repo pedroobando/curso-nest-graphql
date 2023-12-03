@@ -1,16 +1,32 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Todo } from './entity';
 import { CreateTodoInput, UpdateTodoInput } from './dto/inputs';
+import { StatusArgs } from './dto/args';
 
 @Injectable()
 export class TodoService {
   private todos: Todo[] = [
     { id: 1, description: 'Piedra del Alma', done: false },
-    { id: 2, description: 'Piedra del Espacio', done: false },
+    { id: 2, description: 'Piedra del Espacio', done: true },
     { id: 3, description: 'Piedra del Poder', done: false },
+    { id: 4, description: 'Piedra del Realidad', done: false },
+    { id: 5, description: 'Piedra del Mente', done: true },
   ];
 
-  findAll(): Todo[] {
+  get totalTodos(): number {
+    return this.todos.length;
+  }
+
+  get completedTodos(): number {
+    return this.todos.filter((todo) => todo.done).length;
+  }
+
+  get pendingTodos(): number {
+    return this.todos.filter((todo) => !todo.done).length;
+  }
+
+  findAll({ status }: StatusArgs): Todo[] {
+    if (status !== undefined) return this.todos.filter((todo) => todo.done === status);
     return this.todos;
   }
 
