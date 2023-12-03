@@ -4,7 +4,7 @@ import { Args, Float, Int, Query, Resolver } from '@nestjs/graphql';
 export class HelloWorldResolver {
   @Query(() => String, { name: 'hello', description: 'Hola mundo es lo que retorna siempre' })
   helloWorld(): string {
-    return 'Hola mundo...!';
+    return 'Hola mundo...!!';
   }
 
   @Query(() => Float, { name: 'randomNumber' })
