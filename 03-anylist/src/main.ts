@@ -13,8 +13,6 @@ async function bootstrap() {
     }),
   );
 
-  console.log('first')
-
   const portRunning = process.env.PORT;
   await app.listen(portRunning);
   logger.log(`App running on port ${portRunning}`);

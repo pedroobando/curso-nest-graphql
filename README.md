@@ -12,6 +12,8 @@ Curso de nestjs+graphql por fernando herrera - visto por devtalles
 
 02-todo: Es una aplicacion de "Todo", integrando graphql en nestjs
 
+03-anylist: Es una aplicacion "Listas personalizadas", la cual se conecta una base de datos postgres todo integrando graphql en nestjs
+
 ## License
 
 Nest is [MIT licensed](LICENSE).

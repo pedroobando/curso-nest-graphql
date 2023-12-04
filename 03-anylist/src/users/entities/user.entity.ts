@@ -33,7 +33,7 @@ export class User {
     default: true,
   })
   @Field(() => Boolean)
-  isBlock: boolean;
+  isActive: boolean;
 
   // TODO: relaciones y otras cosas...
 }

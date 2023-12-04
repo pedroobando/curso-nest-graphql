@@ -5,12 +5,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateItemInput } from './dto/inputs/create-item.input';
-import { UpdateItemInput } from './dto/inputs/update-item.input';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+
 import { Item } from './entities';
-import { ConfigService } from '@nestjs/config';
+import { CreateItemInput } from './dto/inputs/create-item.input';
+import { UpdateItemInput } from './dto/inputs/update-item.input';
 
 @Injectable()
 export class ItemsService {
