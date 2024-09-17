@@ -25,6 +25,8 @@ export class UsersService {
     try {
       const newUser = this.userRepository.create({
         ...signupInput,
+        email: signupInput.email.toLowerCase().trim(),
+        fullName: signupInput.fullName.trim(),
         password: bcrypt.hashSync(signupInput.password, 10),
       });
 
@@ -46,7 +48,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOneById(id: string): Promise<User> {
     try {
       return await this.userRepository.findOneByOrFail({ id });
     } catch (error) {

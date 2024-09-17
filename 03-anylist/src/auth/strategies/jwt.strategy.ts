@@ -4,10 +4,15 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities';
 import { JwtPayLoad } from '../interfaces/jwt-payload.interface';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    private readonly authService: AuthService,
+
+    configService: ConfigService,
+  ) {
     super({
       secretOrKey: configService.get('JWT_SECRET'),
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -16,8 +21,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayLoad): Promise<User> {
-    console.log({ payload });
-    throw new UnauthorizedException('Token no valido :(');
+    const { sub } = payload;
+    const user = await this.authService.validateUser(sub);
+    // console.log({ user });
+    return user;
+
+    // throw new UnauthorizedException('Token no valido :(');
     // return { id: payload.sub, email: payload.username };
   }
 }
