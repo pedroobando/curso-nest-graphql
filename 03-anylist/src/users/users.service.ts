@@ -40,7 +40,13 @@ export class UsersService {
 
   async findAll(roles: ValidRoles[]): Promise<User[]> {
     try {
-      if (roles.length === 0) return await this.userRepository.find();
+      if (roles.length === 0)
+        return await this.userRepository.find({
+          // TODO: No es necesario porque tenemos lazy en la propiedad de lastUpdateBy ("user.entity.ts")
+          //   relations: {
+          //     lastUpdateBy: true,
+          //   },
+        });
 
       return await this.userRepository
         .createQueryBuilder('user')
@@ -56,7 +62,7 @@ export class UsersService {
     try {
       return await this.userRepository.findOneByOrFail({ email });
     } catch (error) {
-      this.handleDBExceptions({ code: 'error-01', detail: `${email} not found` });
+      this.handleDBExceptions({ code: 'error-01', detail: `User email: ${email} not found` });
     }
   }
 
@@ -64,7 +70,7 @@ export class UsersService {
     try {
       return await this.userRepository.findOneByOrFail({ id });
     } catch (error) {
-      this.handleDBExceptions(error);
+      this.handleDBExceptions({ code: 'error-01', detail: `User id: ${id} not found` });
     }
   }
 
@@ -72,8 +78,13 @@ export class UsersService {
   //   return new User();
   // }
 
-  async block(id: string): Promise<User> {
-    throw new Error('block, not implemented');
+  async block(id: string, adminUser: User): Promise<User> {
+    const usertoBlock: User = await this.findOneById(id);
+
+    usertoBlock.isActive = false;
+    usertoBlock.lastUpdateBy = adminUser;
+
+    return this.userRepository.save(usertoBlock);
   }
 
   async executeSeed(seedUser: IUserSeed[]): Promise<string> {
@@ -93,6 +104,7 @@ export class UsersService {
 
       return `Insert ${dbUsers.length} record in database.`;
     } catch (error) {
+      console.log({ error });
       this.handleDBExceptions(error);
     }
   }
@@ -112,7 +124,7 @@ export class UsersService {
       throw new BadRequestException(`Error ${error.detail.replace('Key ', '')}`);
     }
     if (error.code === 'error-01') {
-      throw new NotFoundException(`Error ${error.detail}`);
+      throw new NotFoundException(`${error.detail}`);
     }
 
     // console.log({ error });

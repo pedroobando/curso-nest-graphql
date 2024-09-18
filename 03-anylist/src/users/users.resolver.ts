@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
@@ -14,12 +14,14 @@ export class UsersResolver {
 
   @Query(() => [User], { name: 'users' })
   findAll(@Args() validRoles: ValidRolesArgs, @CurrentUser([ValidRoles.admin]) user: User): Promise<User[]> {
-    console.log({ user });
     return this.usersService.findAll(validRoles.roles);
   }
 
   @Query(() => User, { name: 'user' })
-  findOne(@Args('id', { type: () => ID }) id: string) {
+  findOne(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+    @CurrentUser([ValidRoles.admin, ValidRoles.superUser]) user: User,
+  ) {
     return this.usersService.findOneById(id);
   }
 
@@ -28,8 +30,11 @@ export class UsersResolver {
   //   return this.usersService.update(updateUserInput.id, updateUserInput);
   // }
 
-  @Mutation(() => User)
-  blockUser(@Args('id', { type: () => ID }) id: string): Promise<User> {
-    return this.usersService.block(id);
+  @Mutation(() => User, { name: 'blockUser' })
+  blockUser(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+    @CurrentUser([ValidRoles.admin]) user: User,
+  ): Promise<User> {
+    return this.usersService.block(id, user);
   }
 }

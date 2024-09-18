@@ -37,6 +37,8 @@ export class AuthService {
       throw new BadRequestException(`Email / Password do not match`);
     }
 
+    await this.validateUser(user.id);
+
     const token = this.getJwtToken(user.id);
 
     return {
