@@ -28,6 +28,7 @@ type Query {
   users: [User!]!
   user(id: ID!): User!
   revalidate: AuthResponse!
+  executeSeed: String!
 }
 
 type Mutation {

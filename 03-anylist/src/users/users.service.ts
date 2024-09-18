@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { SignupInput } from 'src/auth/dto/inputs';
+import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,7 @@ export class UsersService {
         ...signupInput,
         email: signupInput.email.toLowerCase().trim(),
         fullName: signupInput.fullName.trim(),
-        password: bcrypt.hashSync(signupInput.password, 10),
+        password: bcrypt.hashSync(signupInput.password.trim(), 10),
       });
 
       return await this.userRepository.save(newUser);
@@ -62,6 +63,37 @@ export class UsersService {
 
   async block(id: string): Promise<User> {
     throw new Error('block, not implemented');
+  }
+
+  async executeSeed(seedUser: IUserSeed[]): Promise<string> {
+    const users: User[] = [];
+
+    try {
+      await this.deleteAllUsers();
+
+      seedUser.forEach((user) => {
+        user.email = user.email.toLowerCase().trim();
+        user.fullName = user.fullName.trim();
+        user.password = bcrypt.hashSync(user.password.trim(), 10);
+        users.push(this.userRepository.create({ ...user }));
+      });
+
+      const dbUsers = await this.userRepository.save(users);
+
+      return `Insert ${dbUsers.length} record in database.`;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
+  private async deleteAllUsers() {
+    const queryUser = this.userRepository.createQueryBuilder('user');
+
+    try {
+      return await queryUser.delete().where({}).execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any): never {
