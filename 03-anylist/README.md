@@ -23,3 +23,9 @@ sudo docker compose up -d
 ```
 yarn start:dev
 ```
+
+5. Crear la semilla con este Query
+
+```
+executeSeed
+```

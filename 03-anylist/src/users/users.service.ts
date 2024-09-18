@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { SignupInput } from 'src/auth/dto/inputs';
 import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
+import { ValidRoles } from 'src/auth/enums';
 
 @Injectable()
 export class UsersService {
@@ -37,8 +38,18 @@ export class UsersService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return [];
+  async findAll(roles: ValidRoles[]): Promise<User[]> {
+    try {
+      if (roles.length === 0) return await this.userRepository.find();
+
+      return await this.userRepository
+        .createQueryBuilder('user')
+        .andWhere('ARRAY[roles] && ARRAY[:...roles]')
+        .setParameter('roles', roles)
+        .getMany();
+    } catch (error) {
+      this.handleDBExceptions({ code: 'error-02', detail: ` not found` });
+    }
   }
 
   async findOneByEmail(email: string): Promise<User> {
