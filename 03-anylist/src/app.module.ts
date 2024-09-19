@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { JwtService } from '@nestjs/jwt';
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -17,11 +18,31 @@ import { SeedModule } from './seed/seed.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+
+    //* Configuracion basica
+    // GraphQLModule.forRoot<ApolloDriverConfig>({
+    //   driver: ApolloDriver,
+    //   playground: false,
+    //   plugins: [ApolloServerPluginLandingPageLocalDefault()],
+    //   autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+    // }),
+
+    GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      imports: [AuthModule],
+      inject: [JwtService],
+      useFactory: async (jwtService: JwtService) => ({
+        playground: false,
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        plugins: [ApolloServerPluginLandingPageLocalDefault()],
+        context({ req }) {
+          //* Para que no choque o interrumpa el login y singin
+          // const token = req.headers.authorization?.replace('Bearer ', '');
+          // if (!token) throw Error('Token needs');
+          // const payload = jwtService.decode(token);
+          // if (!payload) throw Error('Token not valid');
+        },
+      }),
     }),
 
     TypeOrmModule.forRoot({
