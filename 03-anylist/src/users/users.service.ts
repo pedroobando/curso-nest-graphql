@@ -13,6 +13,7 @@ import { User } from './entities/user.entity';
 import { SignupInput } from 'src/auth/dto/inputs';
 import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
 import { ValidRoles } from 'src/auth/enums';
+import { UpdateUserInput } from './dto/inputs';
 
 @Injectable()
 export class UsersService {
@@ -74,16 +75,25 @@ export class UsersService {
     }
   }
 
-  // async update(id: string, updateUserInput: UpdateUserInput): Promise<User> {
-  //   return new User();
-  // }
+  async update(updateUserInput: UpdateUserInput, updatedBy: User): Promise<User> {
+    try {
+      let user = await this.userRepository.preload({ ...updateUserInput });
+
+      if (!user) throw new NotFoundException(`User with id: ${updateUserInput.id} not found`);
+      user.email = user.email.toLowerCase().trim();
+      user.fullName = user.fullName.trim();
+      user.lastUpdateBy = updatedBy;
+
+      return this.userRepository.save(user);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
 
   async block(id: string, adminUser: User): Promise<User> {
     const usertoBlock: User = await this.findOneById(id);
-
     usertoBlock.isActive = false;
     usertoBlock.lastUpdateBy = adminUser;
-
     return this.userRepository.save(usertoBlock);
   }
 
@@ -104,7 +114,6 @@ export class UsersService {
 
       return `Insert ${dbUsers.length} record in database.`;
     } catch (error) {
-      console.log({ error });
       this.handleDBExceptions(error);
     }
   }
@@ -127,7 +136,6 @@ export class UsersService {
       throw new NotFoundException(`${error.detail}`);
     }
 
-    // console.log({ error });
     this.logger.error(error);
     throw new InternalServerErrorException({ error });
   }

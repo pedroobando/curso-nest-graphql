@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { ValidRolesArgs } from './dto/args/roles.arg';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ValidRoles } from 'src/auth/enums';
+import { UpdateUserInput } from './dto/inputs';
 
 @Resolver(() => User)
 @UseGuards(JwtAuthGuard)
@@ -25,10 +26,14 @@ export class UsersResolver {
     return this.usersService.findOneById(id);
   }
 
-  // @Mutation(() => User)
-  // updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-  //   return this.usersService.update(updateUserInput.id, updateUserInput);
-  // }
+  @Mutation(() => User, { name: 'updateUser' })
+  updateUser(
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+    @CurrentUser([ValidRoles.admin]) user: User,
+  ) {
+    console.log({ updateUserInput });
+    return this.usersService.update(updateUserInput, user);
+  }
 
   @Mutation(() => User, { name: 'blockUser' })
   blockUser(
