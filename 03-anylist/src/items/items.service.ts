@@ -57,6 +57,10 @@ export class ItemsService {
     return await this.itemRepository.remove(item);
   }
 
+  async itemCountByUser(user: User): Promise<number> {
+    return await this.itemRepository.count({ where: { user: { id: user.id } } });
+  }
+
   private handleDBExeptions(error: any): never {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);

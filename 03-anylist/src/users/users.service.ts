@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { SignupInput } from 'src/auth/dto/inputs';
 import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
 import { ValidRoles } from 'src/auth/enums';
-import { UpdateUserInput } from './dto/inputs';
+import { ResetPassInput, UpdateUserInput } from './dto/inputs';
 
 @Injectable()
 export class UsersService {
@@ -30,7 +30,7 @@ export class UsersService {
         ...signupInput,
         email: signupInput.email.toLowerCase().trim(),
         fullName: signupInput.fullName.trim(),
-        password: bcrypt.hashSync(signupInput.password.trim(), 10),
+        password: this.bcryptPass(signupInput.password),
       });
 
       return await this.userRepository.save(newUser);
@@ -106,7 +106,7 @@ export class UsersService {
       seedUser.forEach((user) => {
         user.email = user.email.toLowerCase().trim();
         user.fullName = user.fullName.trim();
-        user.password = bcrypt.hashSync(user.password.trim(), 10);
+        user.password = this.bcryptPass(user.password);
         users.push(this.userRepository.create({ ...user }));
       });
 
@@ -116,6 +116,18 @@ export class UsersService {
     } catch (error) {
       this.handleDBExceptions(error);
     }
+  }
+
+  async resetPassWord({ id, password }: ResetPassInput, user: User): Promise<User> {
+    const resetUser = await this.findOneById(id);
+    resetUser.isActive = true;
+    resetUser.password = this.bcryptPass(password);
+    resetUser.lastUpdateBy = user;
+    return this.userRepository.save(resetUser);
+  }
+
+  private bcryptPass(password: string): string {
+    return bcrypt.hashSync(password.trim(), 10);
   }
 
   private async deleteAllUsers() {
