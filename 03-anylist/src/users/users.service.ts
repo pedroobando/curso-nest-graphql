@@ -97,27 +97,6 @@ export class UsersService {
     return this.userRepository.save(usertoBlock);
   }
 
-  async executeSeed(seedUser: IUserSeed[]): Promise<string> {
-    const users: User[] = [];
-
-    try {
-      await this.deleteAllUsers();
-
-      seedUser.forEach((user) => {
-        user.email = user.email.toLowerCase().trim();
-        user.fullName = user.fullName.trim();
-        user.password = this.bcryptPass(user.password);
-        users.push(this.userRepository.create({ ...user }));
-      });
-
-      const dbUsers = await this.userRepository.save(users);
-
-      return `Insert ${dbUsers.length} record in database.`;
-    } catch (error) {
-      this.handleDBExceptions(error);
-    }
-  }
-
   async resetPassWord({ id, password }: ResetPassInput, user: User): Promise<User> {
     const resetUser = await this.findOneById(id);
     resetUser.isActive = true;
@@ -128,16 +107,6 @@ export class UsersService {
 
   private bcryptPass(password: string): string {
     return bcrypt.hashSync(password.trim(), 10);
-  }
-
-  private async deleteAllUsers() {
-    const queryUser = this.userRepository.createQueryBuilder('user');
-
-    try {
-      return await queryUser.delete().where({}).execute();
-    } catch (error) {
-      this.handleDBExceptions(error);
-    }
   }
 
   private handleDBExceptions(error: any): never {

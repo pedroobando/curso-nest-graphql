@@ -10,6 +10,6 @@ import { User } from './entities';
 @Module({
   providers: [UsersResolver, UsersService],
   imports: [ConfigModule, TypeOrmModule.forFeature([User]), ItemsModule],
-  exports: [UsersService],
+  exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

@@ -16,6 +16,7 @@ type User {
 type Item {
   id: ID!
   name: String!
+  category: String!
   quantityUnits: String
   user: User!
 }
@@ -31,7 +32,6 @@ type Query {
   user(id: ID!): User!
   findAllItems: [Item!]!
   findOneItem(id: ID!): Item!
-  executeSeed: String!
 }
 
 """Roles de usuarios validos"""
@@ -50,6 +50,9 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   removeItem(id: ID!): Item!
+
+  """Ejecuta la construccion de la base de datos"""
+  executeSeed: String!
 }
 
 input SignupInput {

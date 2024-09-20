@@ -51,9 +51,9 @@ export class UsersResolver {
   @Mutation(() => User, { name: 'resetPass' })
   resetPassWord(
     @Args('resetpassInput') resetPassInput: ResetPassInput,
-    @CurrentUser([ValidRoles.admin]) activeUser: User,
+    @CurrentUser([ValidRoles.admin]) adminUser: User,
   ): Promise<User> {
-    return this.usersService.resetPassWord(resetPassInput, activeUser);
+    return this.usersService.resetPassWord(resetPassInput, adminUser);
   }
 
   @ResolveField(() => Int, { name: 'itemCount' })

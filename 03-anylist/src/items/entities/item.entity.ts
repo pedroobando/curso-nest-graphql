@@ -18,6 +18,10 @@ export class Item {
   // @Field(() => Float)
   // quantity: number;
 
+  @Column({ nullable: false, default: 'meat' })
+  @Field(() => String, { nullable: false })
+  category: string;
+
   @Column({ nullable: true, default: 'und' })
   @Field(() => String, { nullable: true })
   quantityUnits?: string; //g, ml, kg, tsp
