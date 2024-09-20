@@ -1,35 +1,56 @@
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+
+import { CreateItemInput, UpdateItemInput } from './dto/inputs';
+
 import { ItemsService } from './items.service';
 import { Item } from './entities/item.entity';
-import { CreateItemInput, UpdateItemInput } from './dto/inputs';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { User } from 'src/users/entities';
+
+import { JwtAuthGuard } from 'src/auth/guards';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+
+import { ValidRoles } from 'src/auth/enums';
 
 @Resolver(() => Item)
+@UseGuards(JwtAuthGuard)
 export class ItemsResolver {
   constructor(private readonly itemsService: ItemsService) {}
 
-  @Mutation(() => Item)
-  createItem(@Args('createItemInput') createItemInput: CreateItemInput): Promise<Item> {
-    return this.itemsService.create(createItemInput);
+  @Mutation(() => Item, { name: 'createItem' })
+  createItem(
+    @Args('createItemInput') createItemInput: CreateItemInput,
+    @CurrentUser([ValidRoles.user]) createUser: User,
+  ): Promise<Item> {
+    return this.itemsService.create(createItemInput, createUser);
   }
 
-  @Query(() => [Item], { name: 'items' })
-  findAll(): Promise<Item[]> {
-    return this.itemsService.findAll();
+  @Query(() => [Item], { name: 'findAllItems' })
+  findAll(@CurrentUser() findUser: User): Promise<Item[]> {
+    return this.itemsService.findAll(findUser);
   }
 
-  @Query(() => Item, { name: 'item' })
-  findOne(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string): Promise<Item> {
-    return this.itemsService.findOne(id);
+  @Query(() => Item, { name: 'findOneItem' })
+  findOne(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+    @CurrentUser() findUser: User,
+  ): Promise<Item> {
+    return this.itemsService.findOne(id, findUser);
   }
 
-  @Mutation(() => Item)
-  updateItem(@Args('updateItemInput') updateItemInput: UpdateItemInput): Promise<Item> {
-    return this.itemsService.update(updateItemInput.id, updateItemInput);
+  @Mutation(() => Item, { name: 'updateItem' })
+  updateItem(
+    @Args('updateItemInput') updateItemInput: UpdateItemInput,
+    @CurrentUser() activeUser: User,
+  ): Promise<Item> {
+    return this.itemsService.update(updateItemInput.id, updateItemInput, activeUser);
   }
 
-  @Mutation(() => Item)
-  removeItem(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string): Promise<Item> {
-    return this.itemsService.remove(id);
+  @Mutation(() => Item, { name: 'removeItem' })
+  removeItem(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+    @CurrentUser() activeUser: User,
+  ): Promise<Item> {
+    return this.itemsService.remove(id, activeUser);
   }
 }

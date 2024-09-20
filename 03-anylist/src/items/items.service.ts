@@ -1,31 +1,29 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-import { v4 as uuidV4 } from 'uuid';
 import { CreateItemInput, UpdateItemInput } from './dto/inputs';
 import { Item } from './entities';
+import { User } from 'src/users/entities';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectRepository(Item)
     private readonly itemRepository: Repository<Item>,
+  ) {}
 
-    // @InjectRepository(ProductImage)
-    // private readonly productImageRepository: Repository<ProductImage>,
-
-    private readonly dataSource: DataSource,
-    private readonly configService: ConfigService,
-  ) {
-    // this.defaultLimit = configService.get<number>('defaultLimit');
-  }
-
-  async create(createItemInput: CreateItemInput): Promise<Item> {
+  async create(createItemInput: CreateItemInput, user: User): Promise<Item> {
     try {
       const item = this.itemRepository.create({
         ...createItemInput,
+        user,
       });
       return await this.itemRepository.save(item);
     } catch (error) {
@@ -33,27 +31,30 @@ export class ItemsService {
     }
   }
 
-  async findAll(): Promise<Item[]> {
-    return await this.itemRepository.find();
+  async findAll(user: User): Promise<Item[]> {
+    return await this.itemRepository.find({ where: { user: { id: user.id } } });
   }
 
-  async findOne(id: string): Promise<Item> {
-    const theItem = await this.itemRepository.findOneBy({ id });
+  async findOne(id: string, user: User): Promise<Item> {
+    const theItem = await this.itemRepository.findOneBy({
+      id,
+      user: { id: user.id },
+    });
     if (!theItem) throw new NotFoundException(`Item with id: ${id} not found`);
     return theItem;
   }
 
-  async update(id: string, updateItemInput: UpdateItemInput): Promise<Item> {
+  async update(id: string, updateItemInput: UpdateItemInput, user: User): Promise<Item> {
+    await this.findOne(id, user);
     const item = await this.itemRepository.preload(updateItemInput);
     if (!item) throw new NotFoundException(`Item with id: ${id} not found`);
     return this.itemRepository.save(item);
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: User): Promise<Item> {
     // Todo: Soft Delete, integridar referencial
-    const item = await this.findOne(id);
-    await this.itemRepository.delete(item);
-    return { ...item, id };
+    const item = await this.findOne(id, user);
+    return await this.itemRepository.remove(item);
   }
 
   private handleDBExeptions(error: any): never {

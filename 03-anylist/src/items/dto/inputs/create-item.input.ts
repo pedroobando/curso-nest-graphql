@@ -9,9 +9,9 @@ export class CreateItemInput {
   @MaxLength(25)
   name: string;
 
-  @Field(() => Float, { description: 'Cantidad de Item' })
-  @IsPositive()
-  quantity: number;
+  // @Field(() => Float, { description: 'Cantidad de Item' })
+  // @IsPositive()
+  // quantity: number;
 
   @Field(() => String, { description: 'Tipo de unidad medida' })
   @IsString()
