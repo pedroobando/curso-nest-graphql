@@ -36,7 +36,7 @@ export class SeedService {
     const user = await this.loadUsers();
 
     const item = await this.loadItems(user);
-    return 'delete';
+    return `User create ${SEED_USERS.length} users with ${SEED_ITEMS.length} articles`;
     // return await this.usersService.executeSeed(userSeed);
   }
 
@@ -59,13 +59,13 @@ export class SeedService {
     return users[0];
   }
 
-  private async loadItems(user: User): Promise<void> {
+  private async loadItems(user: User): Promise<number> {
     const itemsPromises = [];
     for (const item of SEED_ITEMS) {
       itemsPromises.push(this.itemsService.create({ ...item }, user));
     }
 
     Promise.all(itemsPromises);
-    return;
+    return SEED_ITEMS.length;
   }
 }

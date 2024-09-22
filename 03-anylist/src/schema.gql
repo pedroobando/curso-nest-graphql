@@ -30,7 +30,7 @@ type Query {
   revalidate: AuthResponse!
   users(roles: [ValidRoles!] = []): [User!]!
   user(id: ID!): User!
-  findAllItems: [Item!]!
+  findAllItems(offset: Int = 0, limit: Int = 10): [Item!]!
   findOneItem(id: ID!): Item!
 }
 
