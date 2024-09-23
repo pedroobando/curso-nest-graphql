@@ -9,6 +9,8 @@ import { ValidRolesArgs } from './dto/args/roles.arg';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ValidRoles } from 'src/auth/enums';
 import { ResetPassInput, UpdateUserInput } from './dto/inputs';
+import { Item } from 'src/items/entities';
+import { PaginationArgs, SearchArgs } from 'src/common/dto';
 
 @Resolver(() => User)
 @UseGuards(JwtAuthGuard)
@@ -19,8 +21,14 @@ export class UsersResolver {
   ) {}
 
   @Query(() => [User], { name: 'users' })
-  findAll(@Args() validRoles: ValidRolesArgs, @CurrentUser([ValidRoles.admin]) user: User): Promise<User[]> {
-    return this.usersService.findAll(validRoles.roles);
+  findAll(
+    @Args() validRoles: ValidRolesArgs,
+    @CurrentUser([ValidRoles.admin, ValidRoles.superUser]) user: User,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs,
+  ): Promise<User[]> {
+    console.log({ searchArgs });
+    return this.usersService.findAll(validRoles.roles, paginationArgs, searchArgs);
   }
 
   @Query(() => User, { name: 'user' })
@@ -59,5 +67,15 @@ export class UsersResolver {
   @ResolveField(() => Int, { name: 'itemCount' })
   async itemCount(@Parent() user: User, @CurrentUser([ValidRoles.admin]) activeUser: User): Promise<number> {
     return this.itemsService.itemCountByUser(user);
+  }
+
+  @ResolveField(() => [Item], { name: 'item' })
+  async getItemByUser(
+    @Parent() user: User,
+    @CurrentUser([ValidRoles.admin]) activeUser: User,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs,
+  ): Promise<Item[]> {
+    return this.itemsService.findAll(user, paginationArgs, searchArgs);
   }
 }

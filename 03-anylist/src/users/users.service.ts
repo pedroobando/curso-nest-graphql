@@ -14,6 +14,8 @@ import { SignupInput } from 'src/auth/dto/inputs';
 import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
 import { ValidRoles } from 'src/auth/enums';
 import { ResetPassInput, UpdateUserInput } from './dto/inputs';
+import { PaginationArgs, SearchArgs } from 'src/common/dto';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +41,13 @@ export class UsersService {
     }
   }
 
-  async findAll(roles: ValidRoles[]): Promise<User[]> {
+  async findAll(
+    roles: ValidRoles[],
+    paginationArgs: PaginationArgs,
+    searchArgs: SearchArgs,
+  ): Promise<User[]> {
+    const { limit, offset } = paginationArgs;
+    const { search } = searchArgs;
     try {
       if (roles.length === 0)
         return await this.userRepository.find({
@@ -49,12 +57,22 @@ export class UsersService {
           //   },
         });
 
-      return await this.userRepository
+      const queryBuilder = this.userRepository
         .createQueryBuilder('user')
-        .andWhere('ARRAY[roles] && ARRAY[:...roles]')
-        .setParameter('roles', roles)
-        .getMany();
+        .where('ARRAY[roles] && ARRAY[:...roles]')
+        .take(limit)
+        .skip(offset)
+        .setParameter('roles', roles);
+
+      console.log(search);
+
+      if (search)
+        queryBuilder.andWhere('LOWER(user.fullName) like :fullName', {
+          fullName: `%${search.toLowerCase()}%`,
+        });
+      return await queryBuilder.getMany();
     } catch (error) {
+      console.log(error);
       this.handleDBExceptions({ code: 'error-02', detail: ` not found` });
     }
   }
@@ -117,6 +135,7 @@ export class UsersService {
       throw new NotFoundException(`${error.detail}`);
     }
 
+    console.log(error);
     this.logger.error(error);
     throw new InternalServerErrorException({ error });
   }

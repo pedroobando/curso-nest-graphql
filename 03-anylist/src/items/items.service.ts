@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { CreateItemInput, UpdateItemInput } from './dto/inputs';
 import { Item } from './entities';
 import { User } from 'src/users/entities';
-import { PaginationArgs } from 'src/common/dto';
+import { PaginationArgs, SearchArgs } from 'src/common/dto';
 
 @Injectable()
 export class ItemsService {
@@ -32,23 +32,34 @@ export class ItemsService {
     }
   }
 
-  async findAll(user: User, paginationArgs: PaginationArgs): Promise<Item[]> {
+  async findAll(user: User, paginationArgs: PaginationArgs, searchArgs: SearchArgs): Promise<Item[]> {
     const { limit, offset } = paginationArgs;
+    const { search } = searchArgs;
 
-    return await this.itemRepository.find({
-      take: limit,
-      skip: offset,
-      order: {
-        name: {
-          direction: 'ASC',
-        },
-      },
-      where: {
-        user: {
-          id: user.id,
-        },
-      },
-    });
+    const queryBuilder = this.itemRepository.createQueryBuilder();
+
+    if (search) queryBuilder.andWhere('LOWER(name) like :name', { name: `%${search.toLowerCase()}%` });
+    queryBuilder.take(limit).skip(offset).andWhere(`"userId" = :userId`, { userId: user.id });
+
+    return await queryBuilder.getMany();
+
+    //! La busqueda se complica en poco con el Like,
+    //! ya que se desea buscar mayusculas y minisculas
+    // return await this.itemRepository.find({
+    //   take: limit,
+    //   skip: offset,
+    //   order: {
+    //     name: {
+    //       direction: 'ASC',
+    //     },
+    //   },
+    //   where: {
+    //     user: {
+    //       id: user.id,
+    //     },
+    //     name: Like(`%${search.toLowerCase()}%`),
+    //   },
+    // });
   }
 
   async findOne(id: string, user: User): Promise<Item> {
