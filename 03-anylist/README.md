@@ -29,3 +29,6 @@ yarn start:dev
 ```
 executeSeed
 ```
+
+Generacion de hash MD5
+[hash md5](https://www.md5hashgenerator.com/es/)

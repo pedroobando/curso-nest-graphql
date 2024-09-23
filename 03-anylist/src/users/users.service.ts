@@ -11,11 +11,10 @@ import { Repository } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { SignupInput } from 'src/auth/dto/inputs';
-import { IUserSeed } from 'src/seed/interfaces/user-seed.interface';
+
 import { ValidRoles } from 'src/auth/enums';
 import { ResetPassInput, UpdateUserInput } from './dto/inputs';
 import { PaginationArgs, SearchArgs } from 'src/common/dto';
-import { retry } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -64,15 +63,12 @@ export class UsersService {
         .skip(offset)
         .setParameter('roles', roles);
 
-      console.log(search);
-
       if (search)
         queryBuilder.andWhere('LOWER(user.fullName) like :fullName', {
           fullName: `%${search.toLowerCase()}%`,
         });
       return await queryBuilder.getMany();
     } catch (error) {
-      console.log(error);
       this.handleDBExceptions({ code: 'error-02', detail: ` not found` });
     }
   }

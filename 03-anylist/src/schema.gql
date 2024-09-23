@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type List {
+  id: ID!
+  name: String!
+  isActive: Boolean!
+  user: User!
+}
+
 type User {
   id: ID!
   fullName: String!
@@ -11,6 +18,7 @@ type User {
   lastUpdateBy: User
   itemCount: Int!
   item(offset: Int = 0, limit: Int = 10, search: String): [Item!]!
+  list(offset: Int = 0, limit: Int = 10, search: String): [List!]!
 }
 
 type Item {
@@ -32,6 +40,9 @@ type Query {
   user(id: ID!): User!
   findAllItems(offset: Int = 0, limit: Int = 10, search: String): [Item!]!
   findOneItem(id: ID!): Item!
+  listFindAll(offset: Int = 0, limit: Int = 10, search: String): [List!]!
+  listFindOne(id: ID!): List!
+  listActiveSwicth(id: ID!): List!
 }
 
 """Roles de usuarios validos"""
@@ -50,6 +61,9 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   removeItem(id: ID!): Item!
+  listCreate(createListInput: CreateListInput!): List!
+  listUpdate(updateListInput: UpdateListInput!): List!
+  listRemove(id: ID!): List!
 
   """Ejecuta la construccion de la base de datos"""
   executeSeed: String!
@@ -94,5 +108,16 @@ input UpdateItemInput {
 
   """Tipo de unidad medida"""
   quantityUnits: String
+  id: ID!
+}
+
+input CreateListInput {
+  """nombre de la lista"""
+  name: String!
+}
+
+input UpdateListInput {
+  """nombre de la lista"""
+  name: String
   id: ID!
 }

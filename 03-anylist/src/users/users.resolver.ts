@@ -2,15 +2,19 @@ import { Resolver, Query, Mutation, Args, ID, ResolveField, Int, Parent } from '
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { UsersService } from './users.service';
+import { ListsService } from 'src/lists';
 import { ItemsService } from 'src/items/items.service';
 
 import { User } from './entities/user.entity';
+import { Item } from 'src/items/entities';
+import { List } from 'src/lists/entities';
+
+import { PaginationArgs, SearchArgs } from 'src/common/dto';
+
 import { ValidRolesArgs } from './dto/args/roles.arg';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ValidRoles } from 'src/auth/enums';
 import { ResetPassInput, UpdateUserInput } from './dto/inputs';
-import { Item } from 'src/items/entities';
-import { PaginationArgs, SearchArgs } from 'src/common/dto';
 
 @Resolver(() => User)
 @UseGuards(JwtAuthGuard)
@@ -18,6 +22,7 @@ export class UsersResolver {
   constructor(
     private readonly usersService: UsersService,
     private readonly itemsService: ItemsService,
+    private readonly listsService: ListsService,
   ) {}
 
   @Query(() => [User], { name: 'users' })
@@ -77,5 +82,15 @@ export class UsersResolver {
     @Args() searchArgs: SearchArgs,
   ): Promise<Item[]> {
     return this.itemsService.findAll(user, paginationArgs, searchArgs);
+  }
+
+  @ResolveField(() => [List], { name: 'list' })
+  async getListByUser(
+    @Parent() user: User,
+    @CurrentUser([ValidRoles.user]) activeUser: User,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs,
+  ): Promise<List[]> {
+    return this.listsService.findAll(user, paginationArgs, searchArgs);
   }
 }
