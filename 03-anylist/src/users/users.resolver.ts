@@ -74,6 +74,11 @@ export class UsersResolver {
     return this.itemsService.itemCountByUser(user);
   }
 
+  @ResolveField(() => Int, { name: 'listCount' })
+  async listCount(@Parent() user: User, @CurrentUser([ValidRoles.admin]) activeUser: User): Promise<number> {
+    return this.listsService.listCountByUser(user);
+  }
+
   @ResolveField(() => [Item], { name: 'item' })
   async getItemByUser(
     @Parent() user: User,

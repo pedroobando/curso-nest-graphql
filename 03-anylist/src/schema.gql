@@ -2,13 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type List {
-  id: ID!
-  name: String!
-  isActive: Boolean!
-  user: User!
-}
-
 type User {
   id: ID!
   fullName: String!
@@ -17,8 +10,24 @@ type User {
   isActive: Boolean!
   lastUpdateBy: User
   itemCount: Int!
+  listCount: Int!
   item(offset: Int = 0, limit: Int = 10, search: String): [Item!]!
   list(offset: Int = 0, limit: Int = 10, search: String): [List!]!
+}
+
+type List {
+  id: ID!
+  name: String!
+  isActive: Boolean!
+  user: User!
+  listItem: [ListItem!]!
+}
+
+type ListItem {
+  id: ID!
+  quantity: Float!
+  completed: Boolean!
+  item: Item!
 }
 
 type Item {
@@ -27,6 +36,7 @@ type Item {
   category: String!
   quantityUnits: String
   user: User!
+  listItem: [ListItem!]!
 }
 
 type AuthResponse {
@@ -43,6 +53,7 @@ type Query {
   listFindAll(offset: Int = 0, limit: Int = 10, search: String): [List!]!
   listFindOne(id: ID!): List!
   listActiveSwicth(id: ID!): List!
+  listItem(id: ID!): ListItem!
 }
 
 """Roles de usuarios validos"""
@@ -67,6 +78,9 @@ type Mutation {
 
   """Ejecuta la construccion de la base de datos"""
   executeSeed: String!
+  createListItem(createListItemInput: CreateListItemInput!): ListItem!
+  updateListItem(updateListItemInput: UpdateListItemInput!): ListItem!
+  removeListItem(id: ID!): ListItem!
 }
 
 input SignupInput {
@@ -120,4 +134,16 @@ input UpdateListInput {
   """nombre de la lista"""
   name: String
   id: ID!
+}
+
+input CreateListItemInput {
+  id: ID!
+  quantity: Float!
+  completed: Boolean!
+}
+
+input UpdateListItemInput {
+  id: ID!
+  quantity: Float
+  completed: Boolean
 }

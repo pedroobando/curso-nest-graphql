@@ -68,6 +68,10 @@ export class ListsService {
     return await this.listRepository.save(listOne);
   }
 
+  async listCountByUser(user: User): Promise<number> {
+    return await this.listRepository.count({ where: { user: { id: user.id } } });
+  }
+
   private handleExeptions(error: any): never {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);
