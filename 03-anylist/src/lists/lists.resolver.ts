@@ -1,5 +1,5 @@
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID, ResolveField, Parent } from '@nestjs/graphql';
 import { ListsService } from './lists.service';
 
 import { JwtAuthGuard } from 'src/auth/guards';
@@ -10,11 +10,16 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ValidRoles } from 'src/auth/enums';
 import { User } from 'src/users/entities';
 import { PaginationArgs, SearchArgs } from 'src/common/dto';
+import { ListItem } from 'src/list-item/entities';
+import { ListItemService } from 'src/list-item';
 
 @Resolver(() => List)
 @UseGuards(JwtAuthGuard)
 export class ListsResolver {
-  constructor(private readonly listsService: ListsService) {}
+  constructor(
+    private readonly listsService: ListsService,
+    private readonly listItemService: ListItemService,
+  ) {}
 
   @Mutation(() => List, { name: 'listCreate' })
   createList(@Args('createListInput') createListInput: CreateListInput, @CurrentUser([]) createUser: User) {
@@ -54,8 +59,22 @@ export class ListsResolver {
     return this.listsService.remove(id, activeUser);
   }
 
-  @Query(() => List, { name: 'listActiveSwicth' })
-  activeList(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string, @CurrentUser() activeUser: User) {
-    return this.listsService.activeSwicth(id, activeUser);
+  @ResolveField(() => [ListItem], { name: 'items' })
+  async getListItems(
+    @Parent() list: List,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs,
+  ): Promise<ListItem[]> {
+    return this.listItemService.findAll(list, paginationArgs, searchArgs);
   }
+
+  @ResolveField(() => Number, { name: 'totalItems' })
+  async countListItemsByList(@Parent() list: List): Promise<number> {
+    return this.listItemService.countItemsByList(list);
+  }
+
+  // @Query(() => List, { name: 'listActiveSwicth' })
+  // activeList(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string, @CurrentUser() activeUser: User) {
+  //   return this.listsService.activeSwicth(id, activeUser);
+  // }
 }

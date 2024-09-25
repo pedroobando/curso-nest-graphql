@@ -62,11 +62,11 @@ export class ListsService {
     return await this.listRepository.remove(listOne);
   }
 
-  async activeSwicth(id: string, user: User): Promise<List> {
-    const listOne = await this.findOne(id, user);
-    listOne.isActive = !listOne.isActive;
-    return await this.listRepository.save(listOne);
-  }
+  // async activeSwicth(id: string, user: User): Promise<List> {
+  //   const listOne = await this.findOne(id, user);
+  //   listOne.isActive = !listOne.isActive;
+  //   return await this.listRepository.save(listOne);
+  // }
 
   async listCountByUser(user: User): Promise<number> {
     return await this.listRepository.count({ where: { user: { id: user.id } } });

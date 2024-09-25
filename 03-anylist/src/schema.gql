@@ -18,22 +18,22 @@ type User {
 type List {
   id: ID!
   name: String!
-  isActive: Boolean!
   user: User!
-  listItem: [ListItem!]!
+  items(offset: Int = 0, limit: Int = 10, search: String): [ListItem!]!
+  totalItems: Float!
 }
 
 type ListItem {
   id: ID!
   quantity: Float!
   completed: Boolean!
+  list: List!
   item: Item!
 }
 
 type Item {
   id: ID!
   name: String!
-  category: String!
   quantityUnits: String
   user: User!
   listItem: [ListItem!]!
@@ -52,8 +52,6 @@ type Query {
   findOneItem(id: ID!): Item!
   listFindAll(offset: Int = 0, limit: Int = 10, search: String): [List!]!
   listFindOne(id: ID!): List!
-  listActiveSwicth(id: ID!): List!
-  listItem(id: ID!): ListItem!
 }
 
 """Roles de usuarios validos"""
@@ -75,12 +73,10 @@ type Mutation {
   listCreate(createListInput: CreateListInput!): List!
   listUpdate(updateListInput: UpdateListInput!): List!
   listRemove(id: ID!): List!
+  listItemCreate(createListItemInput: CreateListItemInput!): ListItem!
 
   """Ejecuta la construccion de la base de datos"""
   executeSeed: String!
-  createListItem(createListItemInput: CreateListItemInput!): ListItem!
-  updateListItem(updateListItemInput: UpdateListItemInput!): ListItem!
-  removeListItem(id: ID!): ListItem!
 }
 
 input SignupInput {
@@ -137,13 +133,8 @@ input UpdateListInput {
 }
 
 input CreateListItemInput {
-  id: ID!
-  quantity: Float!
-  completed: Boolean!
-}
-
-input UpdateListItemInput {
-  id: ID!
   quantity: Float
-  completed: Boolean
+  completed: Boolean = false
+  listId: ID!
+  itemId: ID!
 }

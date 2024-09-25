@@ -3,8 +3,8 @@ import { Item } from 'src/items/entities';
 import { List } from 'src/lists/entities';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-@Entity({ name: 'listItems' })
-@Unique('listItem-item', ['list', 'item'])
+@Entity('listItems')
+// @Unique('listItem-item', ['list', 'item'])
 @ObjectType()
 export class ListItem {
   @PrimaryGeneratedColumn('uuid')
@@ -19,7 +19,9 @@ export class ListItem {
   @Field(() => Boolean)
   completed: boolean;
 
+  // Relaciones
   @ManyToOne(() => List, (list) => list.listItem, { lazy: true })
+  @Field(() => List)
   list: List;
 
   @ManyToOne(() => Item, (item) => item.listItem, { lazy: true })

@@ -1,11 +1,11 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
 import { ListItem } from 'src/list-item/entities';
 import { User } from 'src/users/entities';
-import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'items' })
 @ObjectType()
-@Index(['id', 'user'], { unique: true })
 export class Item {
   @PrimaryGeneratedColumn('uuid')
   @Field(() => ID)
@@ -16,24 +16,21 @@ export class Item {
   name: string;
 
   // @Column()
-  // @Field(() => Float)
+  // @Field( () => Float )
   // quantity: number;
 
-  @Column({ nullable: false, default: 'meat' })
-  @Field(() => String, { nullable: false })
-  category: string;
-
-  @Column({ nullable: true, default: 'und' })
+  @Column({ nullable: true })
   @Field(() => String, { nullable: true })
-  quantityUnits?: string; //g, ml, kg, tsp
+  quantityUnits?: string; // g, ml, kg, tsp
 
+  // stores
+  // user
   @ManyToOne(() => User, (user) => user.items, { nullable: false, lazy: true })
   @Index('userId-index')
   @Field(() => User)
   user: User;
 
   @OneToMany(() => ListItem, (listItem) => listItem.item, { lazy: true })
-  // @Index('listItemId-list-Index')
   @Field(() => [ListItem])
   listItem: ListItem[];
 }

@@ -1,26 +1,24 @@
-import { InputType, Int, Field, ID } from '@nestjs/graphql';
-import { Item } from 'src/items/entities';
-import { List } from 'src/lists/entities';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { InputType, Field, ID } from '@nestjs/graphql';
+import { IsBoolean, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
 
-@Entity({ name: 'listItems' })
 @InputType()
 export class CreateListItemInput {
-  @PrimaryGeneratedColumn('uuid')
-  @Field(() => ID)
-  id: string;
-
-  @Column({ type: 'numeric' })
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
   quantity: number;
 
-  @Column({ type: 'boolean' })
-  @Field(() => Boolean)
-  completed: boolean;
+  @Field(() => Boolean, { nullable: true })
+  @IsBoolean()
+  @IsOptional()
+  completed: boolean = false;
 
-  //* Relations
+  @Field(() => ID)
+  @IsUUID()
+  listId: string;
 
-  // list:List
-
-  // item:Item
+  @Field(() => ID)
+  @IsUUID()
+  itemId: string;
 }

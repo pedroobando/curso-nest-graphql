@@ -4,9 +4,10 @@ import { ListsResolver } from './lists.resolver';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { List } from './entities/list.entity';
+import { ListItemModule } from 'src/list-item';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([List])],
+  imports: [ConfigModule, TypeOrmModule.forFeature([List]), ListItemModule],
   providers: [ListsResolver, ListsService],
   exports: [ListsService],
 })
