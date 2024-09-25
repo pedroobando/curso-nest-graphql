@@ -52,6 +52,7 @@ type Query {
   findOneItem(id: ID!): Item!
   listFindAll(offset: Int = 0, limit: Int = 10, search: String): [List!]!
   listFindOne(id: ID!): List!
+  listItemFindOne(id: ID!): ListItem!
 }
 
 """Roles de usuarios validos"""
@@ -74,6 +75,7 @@ type Mutation {
   listUpdate(updateListInput: UpdateListInput!): List!
   listRemove(id: ID!): List!
   listItemCreate(createListItemInput: CreateListItemInput!): ListItem!
+  listItemUpdate(updateListItemInput: UpdateListItemInput!): ListItem!
 
   """Ejecuta la construccion de la base de datos"""
   executeSeed: String!
@@ -137,4 +139,12 @@ input CreateListItemInput {
   completed: Boolean = false
   listId: ID!
   itemId: ID!
+}
+
+input UpdateListItemInput {
+  quantity: Float
+  completed: Boolean = false
+  listId: ID
+  itemId: ID
+  id: ID!
 }

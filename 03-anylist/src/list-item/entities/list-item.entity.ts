@@ -4,7 +4,7 @@ import { List } from 'src/lists/entities';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('listItems')
-// @Unique('listItem-item', ['list', 'item'])
+@Unique('listItem-item', ['list', 'item'])
 @ObjectType()
 export class ListItem {
   @PrimaryGeneratedColumn('uuid')
